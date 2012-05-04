@@ -55,32 +55,8 @@ Creating the instance.
 		5.1 Creating a key.
 
 			$ ec2-create-keypair cs561-hw2-key
-			Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
-			KEYPAIR	cs561-hw2-key	d0:8d:e9:8e:34:7d:15:cd:43:3c:fd:5e:30:80:50:ee:a4:48:ca:59
-			-----BEGIN RSA PRIVATE KEY-----
-			MIIEogIBAAKCAQEAkJin3FOLGufGvSrK68nSJQIgI7TvitJkalOb17tah0h10wUghJq+iEVLFUIW
-			jkq3Nd1vLwi+7uoDrYG3CT225wx+cikNZJJ8MsRzMjIX3o+TwGTp6O0CZToeIIyKisR5bG+xrIb2
-			rAZSkdBTCKryyIExBgQgpx1TKADFt0EgmZDJE4LSYK06L7IVXzlA/cOE18qLIi99rbLvzjDbvyZl
-			O8HXlC24QB4/Jpncr9OhPz4Ouge/rz1otDcBV2PIyjn//SY6CHBFljd1B+Y5QfZ2pJRg84etxbQn
-			gbaOLm/5L0RfmtlM3kJN/F/CTXutfKL5CRpyOCsTij6iWetkjQDgKwIDAQABAoIBADOaBu2d8tqb
-			NFV13AzhbVk/tPCJNaM5ChTX2ZnXhqsYtNOl1MD96FkBQZZIi3wkNdXHPFJwsJLaeI2G6ScnGwrB
-			bq6W7+ygSipj6ShUsCgA3R2f5cn2KxCs+OtsvFRhYWPNSH7le0pQx066JafGOfZMBI69EloRIQf5
-			npWTbGrgsoBvzv8h8IRSpsLuj/MX0H6psJWeXKQFQBCS/9yXD3vzTyC1wKdVICQa+7wel8dTYSNQ
-			t8bkJSMbeikdPcnxfUMGmYZeLkXW59DB8BPl6XXoM4ylb76rEiXISSFqIv9RDpyyqxIQ2qKppqe+
-			pvTV2zxMA6qMnqPNgHsiRWEJt4ECgYEA1mldDHcHyHbUL+wTCNgHw4EWgisDoKJKR8Fsm6p624ue
-			KX3zTOVuVSitT3AIhMvGXwa4R3rDGKv+6Q6KYhpeuzKU3qaFSHOUjobGKia9FT0Gmm7sRJl6Whhm
-			ha39+/CJGM5JLPvgSkVvYwo4ao8m2SLba3CGR48Vxp6QxJP8P9ECgYEArKSbB9FhUk4Lh0FEDEIx
-			7jB06HE026lFJbs1d/8NkUX6fXzCOD9Y1ctdNR+hj+LcbR7dgxFG6TGWY83TPV1VTQ+HGw3x8X0f
-			iGsKEht3DlmRnMiMNrvChze5NlL2bcB12/LyYF5r26iH+ovXQz1hVBvuuoZ9xeP/LHYD4ofZOzsC
-			gYBFoTPxj1o8tLJV2cGYtqdWyz4nCZcE/I9I3DzMFMIPODkl2lw/1aZOC4a07HonvhFu3LzNocVn
-			5rtCrlEsaMno2xVTdRqFm9tbqdMC70+qbQYO8wTRhlIgnhn1QbrgrY2oO52x+R4uoHv62t/VYyXH
-			kDVXn9RLuuDkfqwe2rwpcQKBgDnLJMbaNd0qmTtfAtujsTlOaWSCuTIrmSVHZV/VNwKBzZgCkrXn
-			puJzILGu9BPJ2waAhaDhwL5BxlmExolNXEfewdixs2OnAk5Vntpu7U0VeORmUmHkOvuvEMZ5wVr+
-			SbYmvzK5iRvQcCzUcWxl+NYCP8mbSjFb4MlOfIBx/6uPAoGAAisHR4RcIV18PMLTKFACIw7GaBsm
-			Fjr67FDe1tEqUvk1epkHwTyaJL33LXZfqHeH2iWAMT/F6WgcOk/n41xWJLn0ua3nEE1d0mM/6W40
-			baCECfYR+M5twbF9uRVov49APYdqgjOoMCrcaMBBRNYU447FhjqurgM7yuxMv0P0n04=
-			-----END RSA PRIVATE KEY-----
-
+			[...]
+			
 		5.2 Saving the content of the key into a file, name it cs615-hw2-key.pem
 
 			$ vim ~/.ec2/cs615-hw2-key.pem
