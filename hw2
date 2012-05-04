@@ -1,0 +1,73 @@
+
+CS615A -- Aspects of System Administration - Spring 2012 - HW#2
+
+HW#2: Package Management on different OS
+
+Summary:
+
+The objective of this assignment is for you to install a few software packages on a few different operating systems or operating system flavors. You will learn to use the standard package management tools of each as well as a single cross-platform package manager (and in the process learn to appreciate the differences and what they may have in common). At the same time, you will practice using the EC2 command-line tools to create and administer the different OS instances. Writing the documentation to perform these tasks will again be part of your assignment.
+
+This assignment is worth 40 points.
+
+OS Instances
+
+The exercises below will be done once for each of the following operating systems/AMIs:
+
+"Getting Started on Fedora Core 8" (AMI Id: ami-b232d0db)
+"Ubuntu 9.10 Karmic Base" (AMI Id: ami-19a34270)
+an OpenSolaris instance (AMI Id: ami-5347a13a)
+a FreeBSD instance (AMI Id: ami-d560b7bc)
+a NetBSD instance (AMI Id: ami-2da67644 (note: type m1.large))
+Creating the instance
+
+Using the EC2 command-line tools, create an instance of each of the above listed AMIs. (You can do this in parallel, or sequentially, as you prefer.) Familiarize yourself with all available command-line tools, most notably, of course, the following commands:
+
+ec2-describe-images
+ec2-add-group
+ec2-describe-group
+ec2-authorize
+ec2-run-instances
+ec2-describe-instances
+ec2-get-console-output
+Install software using the native package managemer
+
+On each instance, use the OS's native package manager (finding out whichever that is and how to use it is part of the assignment) to install the following packages (if not already installed):
+
+gcc
+perl
+python
+gpg
+screen
+sudo
+sipcalc
+Though not part of this assignment, you probably should familiarize yourself with these tools.
+
+Install pkgsrc and the same packages
+
+pkgsrc is a cross platform package manager. That is, you can use it on various operating systems to provide the same way to install packages. It is also primarily a source-based package manager (though binary packages can be created and deployed, of course).
+
+Install and "bootstrap" pkgsrc on each instance, then use it to (again) install the same software as above (this time into the /usr/pkg prefix). This will give you a more detailed idea of what is involved in getting software installed on a host. Note that the process to install, bootstrap and use pkgsrc will be (nearly) exactly the same across platforms.
+
+In addition, please familiarize yourself with the security auditing facilities of pkgsrc and run pkg_admin audit at least once. Review the results and consider their meaning, any suitable followup on your part and the implications thereof.
+
+Build binary packages and deploy them on another instance
+
+To understand the differences between building software from source and using those same tools build (your own) binary packages, pick one of the AMIs listed under OS Instances and create a second instance. On the first instance, using pkgsrc as noted in the previous section, build binary packages in addition to installing them. Then use these binary packages that you created to install the software on the second instance.
+
+Install software "by hand"
+
+Finally, as a comparison to the other software install mechanisms, install the apache webserver version 2.2 "by hand". That is, download the software and follow the instructions provided by the software to install it by compiling it (and any required pre-requisites). When doing so, make sure to install this software under /usr/by-hand.
+
+As this is somewhat more laborsome than the other tasks, you only need to do this on the Fedora and Solaris images.
+
+Deliverables and Due Date
+
+Your deliverable is a single flat text file (plain ascii, preferably created via a unix editor such as vi(1)). The file needs to contain:
+
+your full name
+your @stevens.edu email address
+reasonably detailed step-by-step instructions on how you completed each part of this assignment
+any gained insights / commentary on what you have learned
+The due date for this assignment is 2012-02-22 18:00. Please attach the file to an email sent from your @stevens.edu email address to jschauma@stevens.edu with a subject of "[CS615] HW2".
+
+[Course Website]

@@ -1,0 +1,1363 @@
+Name: BoYu
+Email: byu1@stevens.edu
+
+HW2 : Package Management on different OS
+
+Summary:
+
+In this assignment, I installed a few software packages on a few different operating systems.
+
+OS Instances
+
+The exercises below will be done once for each of the following operating systems/AMIs:
+
+	"Getting Started on Fedora Core 8" (AMI Id: ami-b232d0db)
+	"Ubuntu 9.10 Karmic Base" (AMI Id: ami-19a34270)
+	a FreeBSD instance (AMI Id: ami-d560b7bc)
+	a NetBSD instance (AMI Id: ami-2da67644 (note: type m1.large))
+
+--------------------------------------------------------------------------------------------------------------------
+
+For "Getting Started on Fedora Core 8" (AMI Id: ami-b232d0db)
+
+Creating the instance.
+
+	1. Examine the AMI information.
+
+		$ ec2-describe-images ami-b232d0db
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		IMAGE	ami-b232d0db	amazon/getting-started-with-ebs-boot	amazon	available	public		i386	machine	aki-94c527fd	ari-96c527ff 	
+		ebs 			
+		paravirtual	xen
+		BLOCKDEVICEMAPPING	/dev/sda1		snap-a08912c9	15
+
+	2. Creating a security group.
+
+		$ ec2-add-group cs615-hw2-group -d 'cs615 hw2 group'
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		GROUP	sg-06bb766e	cs615-hw2-group	cs615 hw2 group
+
+	3. Examining the group information.
+
+		$ ec2-describe-group cs615-hw2-group
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		GROUP	sg-06bb766e	496436440624	cs615-hw2-group	cs615 hw2 group	
+
+	4. Adding a role for allowing user to access instance by SSH.
+
+		$ ec2-authorize cs615-hw2-group -P tcp -p 22
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		GROUP			cs615-hw2-group		
+		PERMISSION		cs615-hw2-group	ALLOWS	tcp	22	22	FROM	CIDR	0.0.0.0/0	ingress
+
+	5. Creating a key for accessing instance.
+
+		5.1 Creating a key.
+
+			$ ec2-create-keypair cs561-hw2-key
+			Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+			KEYPAIR	cs561-hw2-key	d0:8d:e9:8e:34:7d:15:cd:43:3c:fd:5e:30:80:50:ee:a4:48:ca:59
+			-----BEGIN RSA PRIVATE KEY-----
+			MIIEogIBAAKCAQEAkJin3FOLGufGvSrK68nSJQIgI7TvitJkalOb17tah0h10wUghJq+iEVLFUIW
+			jkq3Nd1vLwi+7uoDrYG3CT225wx+cikNZJJ8MsRzMjIX3o+TwGTp6O0CZToeIIyKisR5bG+xrIb2
+			rAZSkdBTCKryyIExBgQgpx1TKADFt0EgmZDJE4LSYK06L7IVXzlA/cOE18qLIi99rbLvzjDbvyZl
+			O8HXlC24QB4/Jpncr9OhPz4Ouge/rz1otDcBV2PIyjn//SY6CHBFljd1B+Y5QfZ2pJRg84etxbQn
+			gbaOLm/5L0RfmtlM3kJN/F/CTXutfKL5CRpyOCsTij6iWetkjQDgKwIDAQABAoIBADOaBu2d8tqb
+			NFV13AzhbVk/tPCJNaM5ChTX2ZnXhqsYtNOl1MD96FkBQZZIi3wkNdXHPFJwsJLaeI2G6ScnGwrB
+			bq6W7+ygSipj6ShUsCgA3R2f5cn2KxCs+OtsvFRhYWPNSH7le0pQx066JafGOfZMBI69EloRIQf5
+			npWTbGrgsoBvzv8h8IRSpsLuj/MX0H6psJWeXKQFQBCS/9yXD3vzTyC1wKdVICQa+7wel8dTYSNQ
+			t8bkJSMbeikdPcnxfUMGmYZeLkXW59DB8BPl6XXoM4ylb76rEiXISSFqIv9RDpyyqxIQ2qKppqe+
+			pvTV2zxMA6qMnqPNgHsiRWEJt4ECgYEA1mldDHcHyHbUL+wTCNgHw4EWgisDoKJKR8Fsm6p624ue
+			KX3zTOVuVSitT3AIhMvGXwa4R3rDGKv+6Q6KYhpeuzKU3qaFSHOUjobGKia9FT0Gmm7sRJl6Whhm
+			ha39+/CJGM5JLPvgSkVvYwo4ao8m2SLba3CGR48Vxp6QxJP8P9ECgYEArKSbB9FhUk4Lh0FEDEIx
+			7jB06HE026lFJbs1d/8NkUX6fXzCOD9Y1ctdNR+hj+LcbR7dgxFG6TGWY83TPV1VTQ+HGw3x8X0f
+			iGsKEht3DlmRnMiMNrvChze5NlL2bcB12/LyYF5r26iH+ovXQz1hVBvuuoZ9xeP/LHYD4ofZOzsC
+			gYBFoTPxj1o8tLJV2cGYtqdWyz4nCZcE/I9I3DzMFMIPODkl2lw/1aZOC4a07HonvhFu3LzNocVn
+			5rtCrlEsaMno2xVTdRqFm9tbqdMC70+qbQYO8wTRhlIgnhn1QbrgrY2oO52x+R4uoHv62t/VYyXH
+			kDVXn9RLuuDkfqwe2rwpcQKBgDnLJMbaNd0qmTtfAtujsTlOaWSCuTIrmSVHZV/VNwKBzZgCkrXn
+			puJzILGu9BPJ2waAhaDhwL5BxlmExolNXEfewdixs2OnAk5Vntpu7U0VeORmUmHkOvuvEMZ5wVr+
+			SbYmvzK5iRvQcCzUcWxl+NYCP8mbSjFb4MlOfIBx/6uPAoGAAisHR4RcIV18PMLTKFACIw7GaBsm
+			Fjr67FDe1tEqUvk1epkHwTyaJL33LXZfqHeH2iWAMT/F6WgcOk/n41xWJLn0ua3nEE1d0mM/6W40
+			baCECfYR+M5twbF9uRVov49APYdqgjOoMCrcaMBBRNYU447FhjqurgM7yuxMv0P0n04=
+			-----END RSA PRIVATE KEY-----
+
+		5.2 Saving the content of the key into a file, name it cs615-hw2-key.pem
+
+			$ vim ~/.ec2/cs615-hw2-key.pem
+
+		5.3 Changing the permission of the key file to 400.
+
+			$ chmod 400 ~/.ec2/cs615-hw2-key.pem
+
+	6. Running a new instance for Fedora Core 8.
+
+		$ ec2-run-instances ami-b232d0db -k cs615-hw2-key -g cs615-hw2-group -t t1.micro
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		RESERVATION	r-c4b405a4	496436440624	cs615-hw2-group
+		INSTANCE	i-15bcd270	ami-b232d0db			pending	cs615-hw2-key	0		t1.micro	2012-02-10T20:22:12+0000	us-east-1b	aki-94c527fd	
+		ari-96c527ff		monitoring-disabled					ebs			paravirtual	xen		sg-06bb766e	default
+
+	7. Examining the status of the running instance.
+
+		$ ec2-describe-instances | grep ami-b232d0db
+		Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+		INSTANCE	i-15bcd270	ami-b232d0db	ec2-107-22-60-118.compute-1.amazonaws.com	domU-12-31-39-07-81-5B.compute-1.internal	running	
+		cs615-hw2-key	0		t1.micro	2012-02-10T20:22:12+0000	us-east-1b	aki-94c527fd	ari-96c527ff		monitoring-disabled	107.22.60.118		
+		10.209.130.169			ebs					paravirtual	xen		sg-06bb766e	default
+
+	8. Examining the instance's console output.
+
+		$ ec2-get-console-output i-15bcd270
+		[Omit the long results]
+
+	9. Login to the instance.
+
+		$ ssh -i ~/.ec2/cs615-hw2-key.pem root@ec2-107-22-60-118.compute-1.amazonaws.com
+
+	         __|  __|_  )  Fedora 8
+	         _|  (     /    32-bit
+	        ___|\___|___|
+
+	 	Welcome to an EC2 Public Image
+	                       :-)
+
+	    	Getting Started
+	          with EBS Boot
+
+		 --[ see /etc/ec2/release-notes ]--
+
+		[root@domU-12-31-39-07-81-5B ~]# 
+
+Install software using the native package manager.
+
+	In the Fedora, use yum to manage packages.
+
+	1. gcc
+
+		[Use yum under Fedora 8 to install gcc]
+		# yum install gcc
+
+		[Verify gcc is installed]
+		# gcc --version
+		gcc (GCC) 4.1.2 20070925 (Red Hat 4.1.2-33)
+		Copyright (C) 2006 Free Software Foundation, Inc.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	2. perl
+
+		[Verify perl is installed]
+		# perl --version
+
+		This is perl, v5.8.8 built for i386-linux-thread-multi
+
+		Copyright 1987-2006, Larry Wall
+
+		Perl may be copied only under the terms of either the Artistic License or the
+		GNU General Public License, which may be found in the Perl 5 source kit.
+
+		Complete documentation for Perl, including FAQ lists, should be found on
+		this system using "man perl" or "perldoc perl".  If you have access to the
+		Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+	3. python
+
+		[Verify python is installed]
+		# python --version
+		Python 2.5.1
+
+	4. gpg
+
+		[Verify gpg is installed]
+		# gpg --version
+		gpg (GnuPG) 1.4.
+		Copyright (C) 2006 Free Software Foundation, Inc.
+		This program comes with ABSOLUTELY NO WARRANTY.
+		This is free software, and you are welcome to redistribute it
+		under certain conditions. See the file COPYING for details.
+
+		Home: ~/.gnupg
+		Supported algorithms:
+		Pubkey: RSA, RSA-E, RSA-S, ELG-E, DSA
+		Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH
+		Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+		Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+	5. screen
+
+		[Use yum package manager to install screen]
+		# yum install screen
+
+		[Verify screen is installed]
+		# screen --version
+		Screen version 4.00.03 (FAU) 23-Oct-06
+
+	6. sudo 
+
+		[Verify sudo is installed]
+		# sudo --version
+		sudo: please use single character options
+		usage: sudo -h | -K | -k | -L | -l | -V | -v
+		usage: sudo [-bEHPS] [-p prompt] [-u username|#uid] [VAR=value]
+	            {-i | -s | <command>}
+		usage: sudo -e [-S] [-p prompt] [-u username|#uid] file ...
+
+	7. sipcalc
+	
+		[http://www.cyberciti.biz/tips/rhel5-fedora-core-add-new-yum-repository.htm]
+		[add a new repository to yum]
+		[update yum]
+		[then sipcalc will be installed]
+		# yum install sipcalc
+
+Install pkgsrc and the same packages
+
+	1. Install pkgsrc
+
+		# wget ftp://ftp.netbsd.org/pub/pkgsrc/pkgsrc-2011Q4/pkgsrc-2011Q4.tar.gz
+		# tar zxvf pkgsrc-2011Q4.tar.gz
+		# cd pkgsrc/bootstrap
+		# yum install gcc
+		# ./bootstrap
+
+	2. Build binary packages
+
+		Please remember to add /usr/pkg/bin to your PATH environment variable
+		and /usr/pkg/man to your MANPATH environment variable, if necessary.
+
+		# export PATH=/usr/pkg/bin:$PATH
+
+		2.1 gcc
+
+			# cd lang/gcc
+			# bmake
+			# work/.gcc/bin/gcc -v
+			Using built-in specs.
+			Target: i386-redhat-linux
+			Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix 
+			--enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions 
+			--enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --enable-plugin 
+			--with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode 
+			--with-ecj-jar=/usr/share/java/eclipse-ecj.jar --with-cpu=generic --host=i386-redhat-linux
+			Thread model: posix
+			gcc version 4.1.2 20070925 (Red Hat 4.1.2-33)
+		
+			# bmake install
+			=> Bootstrap dependency digest>=20010302: found digest-20111104
+			=> Bootstrap dependency tnftp-[0-9]*: found tnftp-20070806
+			===> Skipping vulnerability checks.
+			WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+			WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+			===> Building binary package for gcc-2.95.3nb7
+			=> Creating binary package /root/pkgsrc/packages/All/gcc-2.95.3nb7.tgz
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/i386-pc-linux/include/_G_config.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/FlexLexer.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/floatio.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/iolibio.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/iostdio.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/iostreamP.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/libio.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/include/g++-3/libioP.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/lib/gcc-lib/i386-pc-linux/2.95.3/include/math.h'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/lib/libstdc++.a.4.0'
+			pkg_create: can't stat `/root/pkgsrc/lang/gcc/work/.destdir/usr/pkg/gcc-2.95.3/lib/libstdc++.so.4.0'
+			pkg_create: lstat failed for file gcc-2.95.3/i386-pc-linux/include/_G_config.h: No such file or directory
+			*** Error code 2
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/lang/gcc
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/lang/gcc
+		
+			[Need further debug!!!!!!!!!]
+			
+	
+		2.2 perl
+
+			# cd lang/perl5
+			# bmake
+			# bmake install
+			
+			[vrify perl]
+			# /usr/pkg/bin/perl --version
+
+			This is perl 5, version 14, subversion 2 (v5.14.2) built for i386-linux-thread-multi
+
+			Copyright 1987-2011, Larry Wall
+
+			Perl may be copied only under the terms of either the Artistic License or the
+			GNU General Public License, which may be found in the Perl 5 source kit.
+
+			Complete documentation for Perl, including FAQ lists, should be found on
+			this system using "man perl" or "perldoc perl".  If you have access to the
+			Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+		2.3 python
+		
+			# cd lang/python27
+			# bmake
+			/bin/ln -s .libs/libdb4-4.8.a libdb4.a
+			./libtool --mode=compile g++ -c -I. -I../dist/.. -I/usr/include -D_GNU_SOURCE -D_REENTRANT -O2 -Wno-error -I/usr/include 
+			../dist/../cxx/cxx_db.cpp
+			libtool: compile: unable to infer tagged configuration
+			libtool: compile: specify a tag with `--tag'
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/databases/db4/work/db-4.8.30/build_unix
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/databases/db4
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/databases/db4
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/lang/python27
+
+			[NEED MORE DEBUG!!!]
+
+		2.4 gpg
+
+			# find ./ -name gpg*
+			# cd pkgsrc/security/gpgme
+			# bmake
+			# bmake install
+			# gpg --version
+			gpg (GnuPG) 1.4.7
+			Copyright (C) 2006 Free Software Foundation, Inc.
+			This program comes with ABSOLUTELY NO WARRANTY.
+			This is free software, and you are welcome to redistribute it
+			under certain conditions. See the file COPYING for details.
+
+			Home: ~/.gnupg
+			Supported algorithms:
+			Pubkey: RSA, RSA-E, RSA-S, ELG-E, DSA
+			Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH
+			Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+			Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+		2.5 screen
+	
+			# cd pkgsrc/misc/screen/
+			# bmake
+			[...]
+			libtool: link: unsupported hardcode properties
+			libtool: link: See the libtool documentation for more information.
+			libtool: link: Fatal configuration error.
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/devel/ncurses/work/ncurses-5.9/c++
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/devel/ncurses/work/ncurses-5.9
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/devel/ncurses
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/devel/ncurses
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/misc/screen
+			
+			[Search the Internet, get a solution by install a package]
+			# yum install ncurses-devel.i386
+			
+			# bmake	
+			# bmake install
+			# /usr/pkg/bin/screen --version
+			Screen version 4.00.03 (FAU) 23-Oct-06
+	
+		2.6 sudo 
+
+			# cd security/sudo
+			# bmake
+			# bmake install
+			
+			[Then the sudo has been installed under /usr/pkg/bin]
+			
+			# /usr/pkg/bin/sudo -V
+			Sudo version 1.7.8p1
+
+		2.7 sipcalc
+
+			# cd net/sipcalc
+			# bmake
+
+			=> Bootstrap dependency digest>=20010302: found digest-20111104
+			=> Bootstrap dependency tnftp-[0-9]*: NOT found
+			=> Verifying package-install for ../../net/tnftp
+			ERROR: This package has set PKG_FAIL_REASON:
+			ERROR: No usable termcap library found on the system.
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/net/tnftp
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/net/sipcalc
+
+			[ Install termcap ]
+			# yum install libtermcap-devel.i386
+
+			[ re-do bmake ]
+			# bmake
+
+			[ Install ] 
+			# bmake install
+
+			[ sipcalc has been installed under /usr/pkg/bin ]
+	
+			[ Verify sipcalc ]
+			# /usr/pkg/bin/sipcalc --version
+			sipcalc 1.1.5
+			Written by Simon Ekstrand.
+
+			Copyright (C) 2003-2005 Simon Ekstrand.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Install apache 2.2 "by hand"
+
+	[get source code from web]
+	# wget http://download.nextag.com/apache//httpd/httpd-2.2.22.tar.gz
+
+	# tar zxvf httpd-2.2.22.tar.gz 
+	# cd httpd-2.2.22
+
+	[installation]
+	# ./configure
+	# make
+	# make install
+
+	[verify apache is working correctly]
+	# cd /usr/local/apache2/bin
+	# ./httpd
+	# curl localhost
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+For "Ubuntu 9.10 Karmic Base" (AMI Id: ami-19a34270)
+
+1. Create a second instance
+
+	$ ec2-run-instances ami-19a34270 -k cs615-hw2-key -g cs615-hw2-group -t m1.small
+
+2. Install software using the native package manager
+
+	[Login to the instance]
+	$ ssh -i ~/.ec2/cs615-hw2-key.pem root@ec2-184-73-66-117.compute-1.amazonaws.com
+
+	2.1 gcc
+
+		[gcc is pre installed under the system]
+		# gcc -v
+		Using built-in specs.
+		Target: i486-linux-gnu
+		Configured with: ../src/configure -v --with-pkgversion='Ubuntu 4.4.0-8ubuntu2' 					
+		--with-bugurl=file:///usr/share/doc/gcc-4.4/README.Bugs --enable-				languages=c,c++,fortran,objc,obj-c++ --prefix=/usr --enable-shared 
+		--enable-multiarch --with-system-zlib --libexecdir=/usr/lib --without-included-		gettext --enable-threads=posix 
+		--with-gxx-include-dir=/usr/include/c++/4.4 --program-suffix=-4.4 --enable-nls --enable-clocale=gnu --enable-libstdcxx-	debug --enable-mpfr 		
+		--enable-objc-gc --enable-targets=all --disable-werror --with-arch-32=i486 --with-tune=generic --enable-checking=release --			
+		build=i486-linux-gnu --host=i486-linux-gnu --target=i486-linux-gnu
+		Thread model: posix
+		gcc version 4.4.0 (Ubuntu 4.4.0-8ubuntu2)
+	
+	2.2 perl
+
+		[perl is pre installed under the system]
+		# perl -v
+
+		This is perl, v5.10.0 built for i486-linux-gnu-thread-multi
+
+		Copyright 1987-2007, Larry Wall
+
+		Perl may be copied only under the terms of either the Artistic License or the
+		GNU General Public License, which may be found in the Perl 5 source kit.
+
+		Complete documentation for Perl, including FAQ lists, should be found on
+		this system using "man perl" or "perldoc perl".  If you have access to the
+		Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+	2.3 python
+	
+		[python is pre installed under the system]
+		# python --version
+		Python 2.6.2+
+
+	2.4 gpg
+	
+		[gpg is pre installed under the system]
+		# gpg --version
+		gpg (GnuPG) 1.4.9
+		Copyright (C) 2008 Free Software Foundation, Inc.
+		License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+		This is free software: you are free to change and redistribute it.
+		There is NO WARRANTY, to the extent permitted by law.
+
+		Home: ~/.gnupg
+		Supported algorithms:
+		Pubkey: RSA, RSA-E, RSA-S, ELG-E, DSA
+		Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH
+		Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+		Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+	2.5 screen
+	
+		[update repositoris]
+		# vi /etc/apt/sources.list
+		deb http://old-releases.ubuntu.com/ubuntu/ karmic main restricted universe multiverse
+		deb http://old-releases.ubuntu.com/ubuntu/ karmic-updates main restricted universe multiverse
+		deb http://old-releases.ubuntu.com/ubuntu/ karmic-security main restricted universe multiverse
+		
+		# apt-get update
+		# apt-get install screen
+		# screen -v
+		Screen version 4.00.03jw4 (FAU) 2-May-06
+	
+	2.6 sudo
+
+		[sudo is pre installed under the system]
+		# which sudo
+		/usr/bin/sudo
+
+	2.7 sipcalc
+	
+		# apt-get install sipcalc
+		# sipcalc -V
+		sipcalc 1.1.4
+		Written by Simon Ekstrand.
+
+		Copyright (C) 2003-2005 Simon Ekstrand.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	
+3. Install pkgsrc and the same packages
+
+	3.1. Install pkgsrc
+
+		# wget ftp://ftp.netbsd.org/pub/pkgsrc/pkgsrc-2011Q4/pkgsrc-2011Q4.tar.gz
+		# tar zxvf pkgsrc-2011Q4.tar.gz
+		# cd pkgsrc/bootstrap
+		# ./bootstrap
+		ERROR: Your shell's echo command is not BSD-compatible.
+		ERROR: Please select another shell by setting the environment
+		ERROR: variable SH.
+		
+		[The fix is to issue the following before commencing bootstrap: export SH=/bin/bash]
+		# export SH=/bin/bash
+		
+		[re-run bootstrap]
+		# ./bootstrap
+
+	3.2. Build binary packages
+
+		Please remember to add /usr/pkg/bin to your PATH environment variable
+		and /usr/pkg/man to your MANPATH environment variable, if necessary.
+		# export PATH=/usr/pkg/bin:$PATH
+
+		3.2.1 gcc
+
+			# cd lang/gcc44
+			# bmake
+			# bmake install
+			# /usr/pkg/gcc44/bin/gcc --version
+			gcc (GCC) 4.4.6
+			Copyright (C) 2010 Free Software Foundation, Inc.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+		3.2.2 perl
+		
+			# cd lang/perl5
+			# bmake
+			configure: error: no relevant library found containing tgetent
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/net/tnftp
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/net/tnftp
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/lang/perl5
+			
+			[!!!Search for the Internet get some information: 
+			Please install the appropriate "developer" library for libncurses for 
+			Ubuntu]
+			# apt-get install libncurses-dev
+			
+			[re bmake]
+			# bmake
+			
+			[verify perl]
+			# work/perl-5.14.2/perl --version
+
+			This is perl 5, version 14, subversion 2 (v5.14.2) built for i386-linux-thread-multi
+
+			Copyright 1987-2011, Larry Wall
+
+			Perl may be copied only under the terms of either the Artistic License or the
+			GNU General Public License, which may be found in the Perl 5 source kit.
+
+			Complete documentation for Perl, including FAQ lists, should be found on
+			this system using "man perl" or "perldoc perl".  If you have access to the
+			Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+			
+			# bmake install
+			=> Bootstrap dependency digest>=20010302: found digest-20111104
+			=> Bootstrap dependency tnftp-[0-9]*: found tnftp-20070806
+			===> Skipping vulnerability checks.
+			WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+			WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+			===> Install binary package of perl-5.14.2nb3
+			pkg_add: package `perl-5.14.2nb3' already recorded as installed
+
+		3.2.3 python
+
+			# cd lang/python25
+			# bmake
+			# bmake install
+			[....]
+			Writing //root/pkgsrc/lang/python25/work/.destdir/usr/pkg/lib/python2.5/lib-dynload/Python-2.5.6-py2.5.egg-info
+			=> Automatic manual page handling
+			===> Building binary package for python25-2.5.6
+			=> Creating binary package /root/pkgsrc/packages/All/python25-2.5.6.tgz
+			===> Install binary package of python25-2.5.6
+			
+			# /usr/pkg/bin/python2.5 --version
+			Python 2.5.6
+
+		3.2.4 gpg
+
+			# find ./ -name gpg*
+			# cd pkgsrc/security/gpgme
+			# bmake
+			# bmake install
+			# work/gpgme-1.3.1/src/gpgme-tool --version
+			1.3.1
+
+		3.2.5 screen
+	
+			# cd pkgsrc/misc/screen/
+			# bmake
+			# bmake install
+			# /usr/pkg/bin/screen --version
+			Screen version 4.00.03 (FAU) 23-Oct-06
+	
+		3.2.6 sudo 
+
+			# cd security/sudo
+			# bmake
+			# bmake install
+			# /usr/pkg/bin/sudo -V
+			Sudo version 1.7.8p1
+
+		3.2.7 sipcalc
+
+			# cd net/sipcalc
+			# bmake
+			# bmake install
+			[verify sipcalc]
+			# /usr/pkg/bin/sipcalc -V
+			sipcalc 1.1.5
+			Written by Simon Ekstrand.
+
+			Copyright (C) 2003-2005 Simon Ekstrand.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+			
+
+--------------------------------------------------------------------------------------------------------------------
+
+For FreeBSD instance (AMI Id: ami-d560b7bc)
+
+1. Create an instance
+
+		$ ec2-run-instances ami-d560b7bc -k cs615-hw2-key -g cs615-hw2-group -t t1.micro
+	
+		[get instance infomation]
+		$ ec2-describe-instances i-e870448d
+	
+		[login to the instance]
+		$ ssh -i ~/.ec2/cs615-hw2-key.pem root@ec2-50-17-141-1.compute-1.amazonaws.com
+
+2. Install software using the native package manager
+
+	[Using pkg_add to install packages]
+
+	2.1 gcc
+
+		[gcc is pre installed under the system]
+		# gcc --version
+		gcc (GCC) 4.2.1 20070831 patched [FreeBSD]
+		Copyright (C) 2007 Free Software Foundation, Inc.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	
+	2.2 perl
+
+		[install perl using pkg_add]
+		# pkg_add -r perl
+	
+		[search installed location]
+		# find / -name perl
+		/usr/bin/perl
+		/usr/local/bin/perl
+		/usr/local/lib/perl5/5.12.4/perl
+		/usr/src/contrib/ipfilter/perl
+		/usr/src/contrib/file/Magdir/perl
+	
+		[verify the version infomation]
+		# /usr/local/bin/perl -v
+
+		This is perl 5, version 12, subversion 4 (v5.12.4) built for i386-freebsd-64int
+
+		Copyright 1987-2010, Larry Wall
+
+		Perl may be copied only under the terms of either the Artistic License or the
+		GNU General Public License, which may be found in the Perl 5 source kit.
+
+		Complete documentation for Perl, including FAQ lists, should be found on
+		this system using "man perl" or "perldoc perl".  If you have access to the
+		Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+	
+	2.3 python
+
+		[install python using pkg_add]
+		# pkg_add -r python
+	
+		[verify the version information]
+		# /usr/local/bin/python --version
+		Python 2.7.2
+
+	2.4 gpg
+		
+		# pkg_add -r gpg
+		Error: Unable to get ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/Latest/gpg.tbz: File unavailable (e.g., file not found, 
+		no access)
+		pkg_add: unable to fetch 'ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/Latest/gpg.tbz' by URL
+		
+		[instead, i install gnupg]
+		# pkg_add -r gnupg
+		
+
+	2.5 screen
+
+		[install screen using pkg_add]
+		# pkg_add -r screen
+	
+		[verify the version information]
+		# /usr/local/bin/screen --version
+		Screen version 4.00.03 (FAU) 23-Oct-06
+
+	2.6 sudo
+
+		# pkg_add -r sudo
+		Fetching ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/Latest/sudo.tbz... Done.
+		Fetching ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/All/libiconv-1.13.1_1.tbz... Done.
+		Fetching ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/All/gettext-0.18.1.1.tbz... Done.
+	
+		# /usr/local/bin/sudo -V
+		Sudo version 1.8.3p1
+
+	2.7 sipcalc
+	
+		# pkg_add -r sipcalc
+		Fetching ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9.0-release/Latest/sipcalc.tbz... Done.
+		
+		# /usr/local/bin/sipcalc --version
+		sipcalc 1.1.5
+		Written by Simon Ekstrand.
+
+		Copyright (C) 2003-2005 Simon Ekstrand.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+3. Install pkgsrc and the same packages
+	
+	3.1. Install pkgsrc
+
+		# pkg_add -r wget
+		# /usr/local/bin/wget ftp://ftp.netbsd.org/pub/pkgsrc/pkgsrc-2011Q4/pkgsrc-2011Q4.tar.gz
+		# tar zxvf pkgsrc-2011Q4.tar.gz
+		# cd pkgsrc/bootstrap
+		# ./bootstrap
+
+	3.2 Build and install binary packages
+
+		Please remember to add /usr/pkg/bin to your PATH environment variable
+		and /usr/pkg/man to your MANPATH environment variable, if necessary.
+
+		3.2.1 gcc
+		
+			[FAILED, NEED MORE DEBUG!!!]
+			
+		3.2.2 perl
+
+			# cd lang/perl5
+			# bmake
+			# bmake install
+		
+			# work/perl-5.14.2/perl --version
+			Shared object "libperl.so" not found, required by "perl
+		
+			[NEED MORE DEBUG!!!]
+
+		3.2.3 python
+		
+			# cd lang/python26
+		
+			# bmake 
+			
+			# bmake install
+			
+			# /usr/pkg/bin/python2.6 --version
+			Python 2.6.7
+			
+		3.2.4 gpg
+
+			# find ./ -name gpg*
+			# cd pkgsrc/security/gpgme
+			# bmake
+			# bmake install
+			
+			[verify gpg]
+			# /usr/pkg/bin/gpg2 --version
+			gpg (GnuPG) 2.0.18
+			libgcrypt 1.5.0
+			Copyright (C) 2011 Free Software Foundation, Inc.
+			License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+			This is free software: you are free to change and redistribute it.
+			There is NO WARRANTY, to the extent permitted by law.
+
+			Home: ~/.gnupg
+			Supported algorithms:
+			Pubkey: RSA, ELG, DSA
+			Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH, CAMELLIA128, 
+			        CAMELLIA192, CAMELLIA256
+			Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+			Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+		3.2.5 screen
+	
+			# cd pkgsrc/misc/screen/
+			# bmake
+			[......]
+			utmp.c:93: error: static declaration of 'getutxent' follows non-static declaration
+			/usr/include/utmpx.h:76: error: previous declaration of 'getutxent' was here
+			utmp.c:94: error: static declaration of 'endutxent' follows non-static declaration
+			/usr/include/utmpx.h:75: error: previous declaration of 'endutxent' was here
+			utmp.c:96: error: static declaration of 'setutxent' follows non-static declaration
+			/usr/include/utmpx.h:80: error: previous declaration of 'setutxent' was here
+			utmp.c:105: error: 'UTMPX_FILE' undeclared here (not in a function)
+			utmp.c: In function 'SetUtmp':
+			utmp.c:448: warning: incompatible implicit declaration of built-in function 'strncpy'
+			utmp.c:479: warning: incompatible implicit declaration of built-in function 'strncpy'
+			utmp.c:481: warning: incompatible implicit declaration of built-in function 'strlen'
+			utmp.c: In function 'initutmp':
+			utmp.c:660: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:660: error: (Each undeclared identifier is reported only once
+			utmp.c:660: error: for each function it appears in.)
+			utmp.c: In function 'setutxent':
+			utmp.c:668: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:669: warning: passing argument 1 of 'lseek' makes integer from pointer without a cast
+			utmp.c: In function 'endutxent':
+			utmp.c:675: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:676: warning: passing argument 1 of 'close' makes integer from pointer without a cast
+			utmp.c: In function 'getutxent':
+			utmp.c:683: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:685: warning: passing argument 1 of 'read' makes integer from pointer without a cast
+			utmp.c: In function 'getutslot':
+			utmp.c:694: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:696: warning: passing argument 1 of 'lseek' makes integer from pointer without a cast
+			utmp.c:697: warning: passing argument 1 of 'read' makes integer from pointer without a cast
+			utmp.c: In function 'pututslot':
+			utmp.c:713: error: 'utmpfd' undeclared (first use in this function)
+			utmp.c:715: warning: passing argument 1 of 'lseek' makes integer from pointer without a cast
+			utmp.c:716: warning: passing argument 1 of 'write' makes integer from pointer without a cast
+			utmp.c: In function 'makeuser':
+			utmp.c:743: warning: incompatible implicit declaration of built-in function 'strncpy'
+			utmp.c:744: error: 'struct utmpx' has no member named 'ut_name'
+			utmp.c:744: error: 'struct utmpx' has no member named 'ut_name'
+			utmp.c:744: warning: passing argument 3 of 'strncpy' makes integer from pointer without a cast
+			utmp.c:745: error: 'struct utmpx' has no member named 'ut_xtime'
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/misc/screen/work/screen-4.0.3
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/misc/screen
+			*** Error code 1
+
+			Stop.
+			bmake: stopped in /root/pkgsrc/misc/screen
+			
+			[NEED MORE DEBUG!!!!]
+			
+	
+		3.2.6 sudo 
+
+			# cd security/sudo
+			# bmake
+			# bmake install
+			
+			[verify sudo]
+			# /usr/pkg/bin/sudo -V
+			Sudo version 1.7.8p1
+
+		3.2.7 sipcalc
+
+			# cd net/sipcalc
+			# bmake
+			# bmake install
+
+			[Verify sipcalc]
+			# /usr/pkg/bin/sipcalc --version
+			sipcalc 1.1.5
+			Written by Simon Ekstrand.
+
+			Copyright (C) 2003-2005 Simon Ekstrand.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+--------------------------------------------------------------------------------------------------------------------
+
+For NetBSD instance (AMI Id: ami-2da67644 (note: type m1.large))
+
+1. Create an instance
+
+	$ ec2-run-instances ami-2da67644 -k cs615-hw2-key -g cs615-hw2-group -t m1.large
+	RESERVATION	r-4f365f2f	496436440624	cs615-hw2-group
+	INSTANCE	i-c21a2ea7	ami-2da67644			pending	cs615-hw2-key	0		m1.large	2012-02-20T02:27:04+0000	us-east-1b	aki-427d952b																   
+	monitoring-disabled					ebs					paravirtual	xen	sg-06bb766e	default
+	
+	[get instance infomation]
+	$ ec2-describe-instances i-c21a2ea7
+	RESERVATION	r-4f365f2f	496436440624	cs615-hw2-group
+	INSTANCE	i-c21a2ea7	ami-2da67644	ec2-174-129-55-252.compute-1.amazonaws.com	ip-10-72-107-194.ec2.internal	running	cs615-hw2-key	0	
+	m1.large	2012-02-20T02:27:04+0000	us-east-1b	aki-427d952b			monitoring-disabled	174.129.55.252	10.72.107.194			ebs					
+	paravirtual	xen		sg-06bb766e	default
+	BLOCKDEVICE	/dev/sda1	vol-2b42fe47	2012-02-20T02:27:30.000Z	true
+	BLOCKDEVICE	/dev/sda2	vol-2742fe4b	2012-02-20T02:27:30.000Z	true
+
+	[login to the instance]
+	$ ssh -i ~/.ec2/cs615-hw2-key.pem root@ec2-174-129-55-252.compute-1.amazonaws.com
+
+2. Install software using the native package manager
+	
+	Use pkg_add to install packages.
+	
+	[configure environment variable]
+	setenv PKG_PATH ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/5.0.2_2011Q4/All
+
+	2.1 gcc
+
+		[gcc is pre installed under the system]
+		# gcc --version 
+		gcc (GCC) 4.1.3 20080704 prerelease (NetBSD nb3 20111107)
+		Copyright (C) 2006 Free Software Foundation, Inc.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	2.2 perl
+
+		[install perl using pkg_add]
+		# pkg_add perl
+	
+		[verify perl is installed]
+		# /usr/pkg/bin/perl -v  
+
+		This is perl 5, version 14, subversion 2 (v5.14.2) built for x86_64-netbsd-thread-multi
+
+		Copyright 1987-2011, Larry Wall
+
+		Perl may be copied only under the terms of either the Artistic License or the
+		GNU General Public License, which may be found in the Perl 5 source kit.
+
+		Complete documentation for Perl, including FAQ lists, should be found on
+		this system using "man perl" or "perldoc perl".  If you have access to the
+		Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+	2.3 python
+
+		[install python using pkg_add]
+		# pkg_add python31
+		pkg_add: Warning: package `python31-3.1.4nb1' was built for a platform:
+		pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+		pkg_add: Warning: package `libffi-3.0.9nb1' was built for a platform:
+		pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+		libffi-3.0.9nb1: registering info file /usr/pkg/info/libffi.info
+	
+		[verify python is installed]
+		# /usr/pkg/bin/python3.1 --version
+		Python 3.1.4
+
+	2.4 gpg
+	
+		[install gpgme using pkg_add]
+		# pkg_add gpgme
+
+		[verify gpg]
+		# /usr/pkg/bin/gpg2 --version
+		gpg (GnuPG) 2.0.18
+		libgcrypt 1.5.0
+		Copyright (C) 2011 Free Software Foundation, Inc.
+		License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+		This is free software: you are free to change and redistribute it.
+		There is NO WARRANTY, to the extent permitted by law.
+
+		Home: ~/.gnupg
+		Supported algorithms:
+		Pubkey: RSA, ELG, DSA
+		Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH, CAMELLIA128, 
+		        CAMELLIA192, CAMELLIA256
+		Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+		Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+	2.5 screen
+
+		[install screen using pkg_add]
+		# pkg_add screen
+	
+		[verify screen]
+		/usr/pkg/bin/screen --version
+		Screen version 4.00.03 (FAU) 23-Oct-06
+
+	2.6 sudo
+
+		[install sudo using pkg_add]
+		# pkg_add sudo
+
+		[verify sudo]
+		# /usr/pkg/bin/sudo -V
+		Sudo version 1.7.8p1
+		
+	2.7 sipcalc
+	
+		[install sipcalc using pkg_add]
+		# pkg_add sipcalc
+		pkg_add: Warning: package `sipcalc-1.1.5' was built for a platform:
+		pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+	
+		[verify sipcalc]
+		# /usr/pkg/bin/sipcalc -V
+		sipcalc 1.1.5
+		Written by Simon Ekstrand.
+
+		Copyright (C) 2003-2005 Simon Ekstrand.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+3. Install pkgsrc and the same packages
+
+	3.1. Install pkgsrc
+
+		[install wget to download pkgsrc package]
+		# pkg_add wget
+		# /usr/pkg/bin/wget ftp://ftp.netbsd.org/pub/pkgsrc/pkgsrc-2011Q4/pkgsrc-2011Q4.tar.gz
+		# tar zxvf pkgsrc-2011Q4.tar.gz
+		# cd pkgsrc/bootstrap
+		# ./bootstrap
+		
+		[unset PKG_PATH]
+		# unsetenv PKG_PATH
+
+		# ./bootstrap
+		
+	3.2 Build and install binary packages
+
+		Please remember to add /usr/pkg/bin to your PATH environment variable
+		and /usr/pkg/man to your MANPATH environment variable, if necessary.
+	
+		3.2.1 gcc
+		
+			# cd lang/gcc46
+			# make
+			# make install
+			
+			[verify gcc]
+			# /usr/pkg/gcc46/bin/gcc --version
+			gcc (GCC) 4.6.2
+			Copyright (C) 2011 Free Software Foundation, Inc.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+			
+		3.2.2 perl
+		
+			# cd lang/perl5
+			# make
+			# make install
+			[verify the installed perl]
+			# /usr/pkg/bin/perl --version
+
+			This is perl 5, version 14, subversion 2 (v5.14.2) built for x86_64-netbsd-thread-multi
+
+			Copyright 1987-2011, Larry Wall
+
+			Perl may be copied only under the terms of either the Artistic License or the
+			GNU General Public License, which may be found in the Perl 5 source kit.
+
+			Complete documentation for Perl, including FAQ lists, should be found on
+			this system using "man perl" or "perldoc perl".  If you have access to the
+			Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+		
+		3.2.3 python
+		
+			# cd lang/python25
+			# make
+			# make install
+			# /usr/pkg/bin/python2.5 --version
+			Python 2.5.6
+		
+		3.2.4 gpg
+		
+			# cd security/gpgme
+			# make
+			# make install
+			# /usr/pkg/bin/gpg2 --version
+			gpg (GnuPG) 2.0.18
+			libgcrypt 1.5.0
+			Copyright (C) 2011 Free Software Foundation, Inc.
+			License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+			This is free software: you are free to change and redistribute it.
+			There is NO WARRANTY, to the extent permitted by law.
+
+			Home: ~/.gnupg
+			Supported algorithms:
+			Pubkey: RSA, ELG, DSA
+			Cipher: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH, CAMELLIA128, 
+			        CAMELLIA192, CAMELLIA256
+			Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+			Compression: Uncompressed, ZIP, ZLIB, BZIP2
+				
+		3.2.5 screen
+
+			# cd misc/screen
+			# make
+			# make install
+			# /usr/pkg/bin/screen --version
+			Screen version 4.00.03 (FAU) 23-Oct-06
+		
+		3.2.6 sudo
+		
+			# cd security/sudo
+			# make
+			# make install
+			# /usr/pkg/bin/sudo -V
+			Sudo version 1.7.8p1
+		
+		3.2.7 sipcalc
+		
+			# cd net/sipcalc
+			# make
+			# ./work/sipcalc-1.1.5/src/sipcalc -V
+			sipcalc 1.1.5
+			Written by Simon Ekstrand.
+
+			Copyright (C) 2003-2005 Simon Ekstrand.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+		
+			# make install
+			[....]
+			pkg_add: package `sipcalc-1.1.5' already recorded as installed
+
+	3.3 familiarize yourself with the security auditing facilities of pkgsrc
+	
+		3.3.1 Run pkg_admin audit
+
+			ip-10-72-230-84# pkg_admin audit
+			pkg_admin: Cannot open /var/db/pkg/pkg-vulnerabilities: No such file or directory
+			
+			[To search the Internet, get a solution from http://pastebin.com/c2MHqq3b]
+			ip-10-72-230-84# pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities
+			
+			[re-run pkg_admin audit]
+			ip-10-72-230-84# pkg_admin audit
+			Package python25-2.5.6 has a denial-of-service vulnerability, see http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-0845
+
+4. Build binary packages and deploy them on another instance
+
+	4.1. gcc
+	
+		4.1.1 copy software package to second instance
+		
+			# cd /root/pkgsrc/packages/All
+			# scp -i /root/cs615-hw2-key.pem gcc44-4.4.6nb1.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com: 
+		
+		4.1.2 install the package at the second instance
+		
+			# pkg_add gcc44-4.4.6nb1.tgz
+
+	4.2. perl
+	
+		4.2.1 copy software package to second instance
+		
+			# cd /root/pkgsrc/packages/All
+			# scp -i /root/cs615-hw2-key.pem screen-4.0.3nb4.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+			
+		4.2.2 At the second instance, install the package
+		
+			# pkg_add perl-5.14.2nb3.tgz
+			
+			[Then perl is installed under /usr/pkg/bin]】
+	
+	4.3. python
+	
+		4.3.1 copy software package to second instance
+		
+			# cd /root/pkgsrc/packages/All
+			# scp -i /root/cs615-hw2-key.pem python25-2.5.6.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+			python25-2.5.6.tgz                   100%   10MB  10.0MB/s  10.0MB/s   00:01
+			
+		4.3.2 At the second instance, install the package
+		
+			# pkg_add python25-2.5.6.tgz
+			pkg_add: Warning: package `libffi-3.0.9nb1' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			libffi-3.0.9nb1: registering info file /usr/pkg/info/libffi.info
+			
+			[Then python is installed under /usr/pkg/bin]】
+
+	4.4. gpg
+	
+		4.4.1 copy software package to the second instance
+		
+			# cd /root/pkgsrc/packages/All
+			# scp -i /root/cs615-hw2-key.pem gpgme-1.3.1nb1.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+			gpgme-1.3.1nb1.tgz                100%  542KB 541.7KB/s 541.7KB/s   00:00
+	
+		4.4.2 At the second instance, install the package
+		
+			# pkg_add gpgme-1.3.1nb1.tgz
+			pkg_add: Warning: package `gnupg2-2.0.18nb2' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			pkg_add: Warning: package `dirmngr-1.1.0nb2' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			pkg_add: Warning: package `libgcrypt-1.5.0' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			pkg_add: Warning: package `libgpg-error-1.10nb1' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			libgcrypt-1.5.0: registering info file /usr/pkg/info/gcrypt.info
+			pkg_add: Warning: package `libksba-1.2.0nb1' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			libksba-1.2.0nb1: registering info file /usr/pkg/info/ksba.info
+			pkg_add: Warning: package `pth-2.0.7nb2' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			pkg_add: Warning: package `libassuan-2.0.2' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			libassuan-2.0.2: registering info file /usr/pkg/info/assuan.info
+			dirmngr-1.1.0nb2: Creating group ``dirmngr''
+			dirmngr-1.1.0nb2: Creating user ``dirmngr''
+			useradd: Warning: home directory `/var/dirmngr' doesn't exist, and -m was not specified
+			===========================================================================
+			The following files should be created for dirmngr-1.1.0nb2:
+
+			        /etc/rc.d/dirmngr (m=0755)
+			            [/usr/pkg/share/examples/rc.d/dirmngr]
+
+			===========================================================================
+			dirmngr-1.1.0nb2: registering info file /usr/pkg/info/dirmngr.info
+			pkg_add: Warning: package `pinentry-0.8.1nb2' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			pinentry-0.8.1nb2: registering info file /usr/pkg/info/pinentry.info
+			pkg_add: Warning: package `curl-7.23.1nb1' was built for a platform:
+			pkg_add: NetBSD/x86_64 5.0.2 (pkg) vs. NetBSD/x86_64 5.1_STABLE (this host)
+			gnupg2-2.0.18nb2: registering info file /usr/pkg/info/gnupg.info
+			
+			[Then gpg is installed under /usr/pkg/bin]
+	
+	4.5. screen
+	
+		4.5.1 copy package to the second instance
+		
+			# cd /root/pkgsrc/packages/All
+		 	# scp -i /root/cs615-hw2-key.pem screen-4.0.3nb4.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+	
+		4.5.2 At the second instance, install the package
+			# pkg_add screen-4.0.3nb4.tgz
+			screen-4.0.3nb4: setting permissions on /usr/pkg/bin/screen-4.0.3 (o=root, g=wheel, m=4511)
+			screen-4.0.3nb4: adding /usr/pkg/bin/screen to /etc/shells
+			===========================================================================
+			$NetBSD: MESSAGE,v 1.5 2005/12/28 17:53:24 reed Exp $
+
+			You may want to create and edit the file:
+
+			        /usr/pkg/etc/screenrc
+
+			to customize screen globally. Example configuration files have been
+			installed to:
+
+			        /usr/pkg/share/examples/screen/screenrc
+			        /usr/pkg/share/examples/screen/etcscreenrc
+
+			===========================================================================
+	
+	4.6. sudo
+	
+		4.6.1 copy package to the second instance
+		
+			# cd /root/pkgsrc/packages/All
+		 	# scp -i /root/cs615-hw2-key.pem sudo-1.7.8p1nb1.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+	
+		4.6.2 At the second instance, install the package
+		
+			# pkg_add sudo-1.7.8p1nb1.tgz
+			sudo-1.7.8p1nb1: copying /usr/pkg/share/examples/sudo/sudoers to /usr/pkg/etc/sudoers
+			sudo-1.7.8p1nb1: setting permissions on /usr/pkg/bin/sudo (o=root, g=wheel, m=4511)
+			sudo-1.7.8p1nb1: setting permissions on /usr/pkg/bin/sudoreplay (o=root, g=wheel, m=511)
+			===========================================================================
+			$NetBSD: MESSAGE,v 1.6 2004/03/11 23:33:09 reed Exp $
+
+			Use the visudo(8) command to edit the sudoers file.
+
+			If you are upgrading from a version of sudo prior to 1.6, please read
+
+			        /usr/pkg/share/doc/sudo/UPGRADE
+
+			on how to modify your sudoers file appropriately.
+			===========================================================================
+
+	4.7. sipcalc
+	
+		4.7.1 copy the package to the second instance
+		
+			# cd /root/pkgsrc/packages/All/
+			# scp -i /root/scp -i /root/cs615-hw2-key.pem sipcalc-1.1.5.tgz root@ec2-107-20-39-207.compute-1.amazonaws.com:
+			Warning: Identity file /root/scp not accessible: No such file or directory.
+			sipcalc-1.1.5.tgz                                                 100%   24KB  24.4KB/s  24.4KB/s   00:00
+				
+		4.7.2 at the second instance, install the package
+		
+			# pkg_add sipcalc-1.1.5.tgz
+			
+			[then sipcalc is installed under /usr/pkg/bin]
+			# /usr/pkg/bin/sipcalc --version
+			sipcalc 1.1.5
+			Written by Simon Ekstrand.
+
+			Copyright (C) 2003-2005 Simon Ekstrand.
+			This is free software; see the source for copying conditions.  There is NO
+			warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+--------------------------------------------------------------------------------------------------------------------

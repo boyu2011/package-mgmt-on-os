@@ -1,0 +1,834 @@
+
+CS615A -- Aspects of System Administration - Spring 2011 - HW#2 - Sample Solution
+
+HW#2: Package Management on different OS
+
+Summary
+
+On this page you will find a sample solution for HW#2. In particular, you will find the annotated script(1) output for the assignment on the Fedora instance. (Note: This is actually the annotated output from 2010 (which many of you have already found and used to help you with your assignment, though none of you mentioned it). The full, unannotated output from the instances used in 2011 can be found in these files: fedora, ubuntu and solaris. Each file illustrates a number of different issues encountered.)
+
+toggle all segments
+
+SSH configuration
+
+In this code segment, you can see my ~/.ssh/config that allows me ssh to the EC2 hosts without having to specify what user or what key to use. Since the hostkeys for these hosts are unknown or changing, there is no point in me trying to retain them in ~/.ssh/known_hosts or enforce strict hostkey checking.
+[show code segment] [toggle all code segments]
+
+(gort) cat ~/.ssh/config
+Host *.amazonaws.com
+	IdentityFile		~/.ec2/stevens.pem
+	User			root
+	UserKnownHostsFile	/dev/null
+	StrictHostKeyChecking	no
+Instance creation
+
+In this code segment, you can see the relevant environment variables and the commands I ran to create the Fedora instance.
+[show code segment] [toggle all code segments]
+
+(gort) env | grep -i ec2
+EC2_CERT=/home/jschauma/.ec2/cert-4RFOW6MFPA35INJEZCPUOQE7TUI7VIGG.pem
+EC2_HOME=/opt/ec2tools-1.3
+EC2_PRIVATE_KEY=/home/jschauma/.ec2/pk-4RFOW6MFPA35INJEZCPUOQE7TUI7VIGG.pem
+PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/sbin:/opt/bin:/opt/mccabe/bin:/usr/games:/opt/ec2tools-1.3/bin:/opt/ec2tools-1.3/bin:/opt/ec2tools-1.3/bin
+(gort) ec2-run-instances ami-b232d0db -g stevens -k stevens
+RESERVATION	r-94700bfc	393287865111	stevens
+INSTANCE	i-dd18eeb6	ami-b232d0db			pending	stevens	0		m1.small	2010-02-21T22:32:15+0000	us-east-1d	aki-94c527fd	ari-96c527ff		monitoring-disabled					ebs		
+(gort) ec2-describe-instances i-dd18eeb6
+RESERVATION	r-94700bfc	393287865111	stevens
+INSTANCE	i-dd18eeb6	ami-b232d0db	ec2-204-236-249-27.compute-1.amazonaws.com	domU-12-31-39-09-C5-24.compute-1.internal	running	stevens	0		m1.small	2010-02-21T22:32:15+0000	us-east-1d	aki-94c527fd	ari-96c527ff		monitoring-disabled	204.236.249.27	10.210.202.210			ebs		
+BLOCKDEVICE	/dev/sda1	vol-adc60ec4	2010-02-21T22:32:21.000Z	
+(gort) ssh ec2-204-236-249-27.compute-1.amazonaws.com
+Warning: Permanently added 'ec2-204-236-249-27.compute-1.amazonaws.com,204.236.249.27' (RSA) to the list of known hosts.
+
+         __|  __|_  )  Fedora 8
+         _|  (     /    32-bit
+        ___|\___|___|
+
+ Welcome to an EC2 Public Image
+                       :-)
+
+    Getting Started
+          with EBS Boot
+
+ --[ see /etc/ec2/release-notes ]--
+
+[root@domU-12-31-39-09-C5-24 ~]#
+Native package installation
+
+In this code segment, you can see the command(s) run to install the packages using the native package manager, yum.
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 ~]# yum install gcc perl python gpg screen sudo sipcalc
+Loaded plugins: fastestmirror
+Determining fastest mirrors
+ * updates-newkey: kdeforge.unl.edu
+ * fedora: kdeforge.unl.edu
+ * updates: kdeforge.unl.edu
+updates-newkey                                                                          | 2.3 kB     00:00     
+fedora                                                                                  | 2.1 kB     00:00     
+updates                                                                                 | 2.6 kB     00:00     
+Setting up Install Process
+Parsing package install arguments
+Package 4:perl-5.8.8-41.fc8.i386 already installed and latest version
+Package python-2.5.1-26.fc8.2.i386 already installed and latest version
+Package gnupg-1.4.7-10.fc8.i386 already installed and latest version
+Package sudo-1.6.9p4-6.fc8.i386 already installed and latest version
+No package [1msipcalc[m available.
+Resolving Dependencies
+--> Running transaction check
+---> Package screen.i386 0:4.0.3-10.fc8 set to be updated
+---> Package gcc.i386 0:4.1.2-33 set to be updated
+--> Processing Dependency: glibc-devel >= 2.2.90-12 for package: gcc
+--> Running transaction check
+---> Package glibc-devel.i386 0:2.7-2 set to be updated
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+===============================================================================================================
+ Package                   Arch               Version                       Repository                    Size
+===============================================================================================================
+Installing:
+ gcc                       i386               4.1.2-33                      fedora                       5.2 M
+ screen                    i386               4.0.3-10.fc8                  updates-newkey               566 k
+Installing for dependencies:
+ glibc-devel               i386               2.7-2                         fedora                       2.0 M
+
+Transaction Summary
+===============================================================================================================
+Install      3 Package(s)         
+Update       0 Package(s)         
+Remove       0 Package(s)         
+
+Total download size: 7.8 M
+Is this ok [y/N]: y
+Downloading Packages:
+(1/3): screen-4.0.3-10.fc8.i386.rpm    (2%) 36% [==========                  ]  0.0 B/s | 208 kB     --:-- ETA (1/3): screen-4.0.3-10.fc8.i386.rpm                                                     | 566 kB     00:00     
+(2/3): glibc-devel-2.7-2.i386.rpm                                                       | 2.0 MB     00:00     
+(3/3): gcc-4.1.2-33.i386.rpm          (64%) 47% [=============               ]  0.0 B/s | 2.4 MB     --:-- ETA (3/3): gcc-4.1.2-33.i386.rpm                                                            | 5.2 MB     00:00     
+---------------------------------------------------------------------------------------------------------------
+Total                                                                          4.9 MB/s | 7.8 MB     00:01     
+============================================== Entering rpm code ==============================================
+Running rpm_check_debug
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing     : screen [                                                                              ] 1/3
+  Installing     : glibc-devel [                                                                         ] 2/3
+  Installing     : gcc [                                                                                 ] 3/3
+============================================== Leaving rpm code ===============================================
+
+Installed:
+  gcc.i386 0:4.1.2-33                                screen.i386 0:4.0.3-10.fc8                               
+
+Dependency Installed:
+  glibc-devel.i386 0:2.7-2                                                                                     
+
+Complete!
+[root@domU-12-31-39-09-C5-24 ~]#
+Native package installation -- sipcalc
+
+In this code segment, you can see the command(s) run to install the package "sipcalc". This package was not available in the default YUM repository, so we had to try to find a suitable package elsewhere. The website rpmfind can at times be used to find binary packages built by other people. Instead of using yum, we now use the rpm command to install the binary package.
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 ~]# rpm -ivh ftp://fr.rpmfind.net/linux/EPEL/4WS/i386/sipcalc-1.1.4-3.el4.i386.rpm
+Retrieving ftp://fr.rpmfind.net/linux/EPEL/4WS/i386/sipcalc-1.1.4-3.el4.i386.rpm
+warning: /var/tmp/rpm-xfer.2WAT78: Header V3 DSA signature: NOKEY, key ID 217521f6
+Preparing...                                                            (100%)
+   1:sipcalc                                                            ( 65%)
+[root@domU-12-31-39-09-C5-24 ~]#
+Installation of pkgsrc
+
+In this code segment, you can see the command(s) run to install pkgsrc.
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 ~]# cd /tmp
+[root@domU-12-31-39-09-C5-24 tmp]# wget ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc.tar.gz
+--2010-02-21 17:41:56--  ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc.tar.gz
+           => `pkgsrc.tar.gz'
+Resolving ftp.netbsd.org... 204.152.190.15, 2001:4f8:3:7:230:48ff:fec6:9aaa
+Connecting to ftp.netbsd.org|204.152.190.15|:21... connected.
+Logging in as anonymous ... Logged in!
+==> SYST ... done.    ==> PWD ... done.
+==> TYPE I ... done.  ==> CWD /pub/NetBSD/packages ... done.
+==> SIZE pkgsrc.tar.gz ... 29554011
+==> PASV ... done.    ==> RETR pkgsrc.tar.gz ... done.
+Length: 29554011 (28M)
+
+ 0% [                                                                      ] 0           --.-K/s 
+
+2010-02-21 17:42:19 (1.27 MB/s) - `pkgsrc.tar.gz' saved [29554011]
+
+[root@domU-12-31-39-09-C5-24 tmp]# tar zxf /tmp/pkgsrc.tar.gz -C /usr
+[root@domU-12-31-39-09-C5-24 tmp]# cd /usr/pkgsrc/bootstrap
+[root@domU-12-31-39-09-C5-24 bootstrap]# ./bootstrap
+===> bootstrap command: ./bootstrap 
+===> bootstrap started: Sun Feb 21 17:43:34 EST 2010
+Working directory is: /usr/pkgsrc/bootstrap/work
+===> running: /bin/sed -e 's|@DEFAULT_INSTALL_MODE@|'0755'|' /usr/pkgsrc/sysutils/install-sh/files/install-sh.in > /usr/pkgsrc/bootstrap/work/bin/install-sh
+===> running: /bin/chmod +x /usr/pkgsrc/bootstrap/work/bin/install-sh
+===> Creating default mk.conf in /usr/pkgsrc/bootstrap/work
+===> running: /bin/sh /usr/pkgsrc/bootstrap/work/bin/install-sh -d -o root -g root /usr/pkgsrc/bootstrap/work/sbin
+===> running: /bin/sh /usr/pkgsrc/bootstrap/work/bin/install-sh -d -o root -g root /usr/pkgsrc/bootstrap/work/share/mk
+===> Bootstrapping mk-files
+===> running: (cd /usr/pkgsrc/pkgtools/bootstrap-mk-files/files && env CP=/bin/cp  OPSYS=Linux MK_DST=/usr/pkgsrc/bootstrap/work/share/mk ROOT_GROUP=root ROOT_USER=root SED=/bin/sed SYSCONFDIR=/usr/pkg/etc /bin/sh ./bootstrap.sh)
+===> Bootstrapping bmake
+===> running: /bin/sh /usr/pkgsrc/bootstrap/work/bin/install-sh -d -o root -g root /usr/pkgsrc/bootstrap/work/bmake
+===> running: (cd /usr/pkgsrc/bootstrap/work/bmake && env  /bin/sh ./boot-strap  -q -o Linux --prefix=/usr/pkgsrc/bootstrap/work --sysconfdir=/usr/pkgsrc/bootstrap/work --mksrc none --with-default-sys-path=/usr/pkgsrc/bootstrap/work/share/mk )
+
+[ successfull compiling of various packages elided ]
+
+===> running: /bin/sh /usr/pkgsrc/bootstrap/work/bin/install-sh -d -o root -g root /usr/pkg/etc
+
+===========================================================================
+
+Please remember to add /usr/pkg/bin to your PATH environment variable
+and /usr/pkg/man to your MANPATH environment variable, if necessary.
+
+An example mk.conf file with the settings you provided to "bootstrap"
+has been created for you. It can be found in:
+
+      /usr/pkg/etc/mk.conf
+
+You can find extensive documentation of the NetBSD Packages Collection
+in /usr/pkgsrc/doc/pkgsrc.txt.
+
+Hopefully everything is now complete.
+Thank you
+
+===========================================================================
+
+===> bootstrap started: Sun Feb 21 17:43:34 EST 2010
+===> bootstrap ended:   Sun Feb 21 17:51:03 EST 2010
+[root@domU-12-31-39-09-C5-24 bootstrap]# 
+pkgsrc -- building anything
+
+In this code segment, you can see the command(s) attempted to install our first package from source using pkgsrc. Somewhat discouragingly, it will immediately fail, as we neglected to carefully read the documentation, which told us that we might need to install another library before we could use pkgsrc.
+
+[show code segment] [toggle all code segments]
+[root@domU-12-31-39-09-C5-24 bootstrap]# export PATH=/usr/pkg/bin:/usr/pkg/sbin:$PATH
+[root@domU-12-31-39-09-C5-24 bootstrap]# cd /usr/pkgsrc/lang/gcc
+[root@domU-12-31-39-09-C5-24 gcc]# bmake
+=> Bootstrap dependency digest>=20010302: NOT found
+=> Verifying reinstall for ../../pkgtools/digest
+===> Skipping vulnerability checks.
+WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+===> Installing dependencies for digest-20080510
+===> Overriding tools for digest-20080510
+===> Extracting for digest-20080510
+===> Patching for digest-20080510
+===> Creating toolchain wrappers for digest-20080510
+===> Configuring for digest-20080510
+=> Modifying GNU configure scripts to avoid --recheck
+=> Replacing config-guess with pkgsrc versions
+=> Replacing config-sub with pkgsrc versions
+=> Replacing install-sh with pkgsrc version
+checking build system type... i386-pc-linux-gnu
+checking host system type... i386-pc-linux-gnu
+checking whether make sets $(MAKE)... yes
+checking for gawk... /bin/awk
+
+[ successful build of digest elided ]
+
+===> Installing for digest-20080510
+/bin/sh ./mkinstalldirs /usr/pkg/bin
+/usr/bin/install -c -s -o root -g root -m 555 digest /usr/pkg/bin/digest
+/bin/sh ./mkinstalldirs /usr/pkg/man/man1
+/usr/bin/install -c -o root -g root -m 444 digest.1 /usr/pkg/man/man1/digest.1
+=> Automatic manual page handling
+=> Registering installation for digest-20080510
+=> Returning to build of gcc-2.95.3nb7
+=> Bootstrap dependency tnftp-[0-9]*: NOT found
+=> Verifying reinstall for ../../net/tnftp
+ERROR: This package has set PKG_FAIL_REASON:
+ERROR: No usable termcap library found on the system.
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/net/tnftp
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/lang/gcc
+[root@domU-12-31-39-09-C5-24 gcc]#
+pkgsrc - installing ncurses-devel
+
+Alright, so we need to install the ncurses-devel package, again using yum:
+[show code segment] [toggle all code segments]
+
+
+[root@domU-12-31-39-09-C5-24 gcc]# yum -y install ncurses-devel
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * updates-newkey: kdeforge.unl.edu
+ * fedora: kdeforge.unl.edu
+ * updates: kdeforge.unl.edu
+Setting up Install Process
+Parsing package install arguments
+Resolving Dependencies
+--> Running transaction check
+---> Package ncurses-devel.i386 0:5.6-12.20070812.fc8 set to be updated
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+===============================================================================================================
+ Package                     Arch               Version                             Repository            Size
+===============================================================================================================
+Installing:
+ ncurses-devel               i386               5.6-12.20070812.fc8                 fedora               653 k
+
+Transaction Summary
+===============================================================================================================
+Install      1 Package(s)         
+Update       0 Package(s)         
+Remove       0 Package(s)         
+
+Total download size: 653 k
+Downloading Packages:
+ncurses-devel-5.6-12.20070812.fc8.i386.r 28% [========                       ]  0.0 B/s | 184 kB     --:-- ETA ncurses-devel-5.6-12.20070812.fc8.i386.rpm                                              | 653 kB     00:00     
+============================================== Entering rpm code ==============================================
+Running rpm_check_debug
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing     : ncurses-devel [                                                                       ] 1/1
+============================================== Leaving rpm code ===============================================
+
+Installed:
+  ncurses-devel.i386 0:5.6-12.20070812.fc8                                                                     
+
+Complete!
+[root@domU-12-31-39-09-C5-24 gcc]#
+pkgsrc -- building gcc
+
+Now that we have the required curses library, we can start to try to install the packages requested in the assignment. Let's start with "gcc".
+
+In this code segment, you can see the command(s) attempted to install lang/gcc using pkgsrc. Note that this would build and install gcc version 2.95.x; our native compiler previously installed using yum is gcc version 4.1 -- a significant difference, as we will learn.
+
+[show code segment] [toggle all code segments]
+[root@domU-12-31-39-09-C5-24 gcc]# bmake
+=> Bootstrap dependency digest>=20010302: found digest-20080510
+=> Bootstrap dependency tnftp-[0-9]*: NOT found
+=> Verifying reinstall for ../../net/tnftp
+===> Skipping vulnerability checks.
+WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+===> Installing dependencies for tnftp-20070806
+==========================================================================
+The supported build options for tnftp are:
+
+	inet6 socks5
+
+The currently selected options are:
+
+	inet6
+
+You can select which build options to use by setting PKG_DEFAULT_OPTIONS
+or the following variable.  Its current value is shown:
+
+	PKG_OPTIONS.tnftp (not defined)
+
+==========================================================================
+===> Overriding tools for tnftp-20070806
+===> Extracting for tnftp-20070806
+===> Patching for tnftp-20070806
+===> Creating toolchain wrappers for tnftp-20070806
+===> Configuring for tnftp-20070806
+=> Modifying GNU configure scripts to avoid --recheck
+=> Replacing config-guess with pkgsrc versions
+=> Replacing config-sub with pkgsrc versions
+=> Replacing install-sh with pkgsrc version
+checking build system type... i386-pc-linux-gnu
+checking host system type... i386-pc-linux-gnu
+checking target system type... i386-pc-linux-gnu
+checking whether make sets $(MAKE)... yes
+checking for i386-pc-linux-gcc... gcc
+
+[ successful build of tnftp elided ]
+
+===> Installing for tnftp-20070806
+install ===> libedit
+install ===> libnetbsd
+install ===> src
+mkdir -p /usr/pkg/bin
+/usr/bin/install -c -o root -g root -m 555 ftp /usr/pkg/bin/`echo ftp|sed 's,x,x,'`
+mkdir -p /usr/pkg/man/cat1
+/usr/bin/install -c -o root -g root -m 444 ./ftp.cat1 /usr/pkg/man/cat1/`echo ftp|sed 's,x,x,'`.0
+=> Automatic manual page handling
+=> Registering installation for tnftp-20070806
+=> Returning to build of gcc-2.95.3nb7
+===> Skipping vulnerability checks.
+WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+=> Fetching gcc-2.95.3.tar.gz
+
+[ successful fetch of gcc elided ]
+
+=> Checksum SHA1 OK for gcc-2.95.3.tar.gz
+=> Checksum RMD160 OK for gcc-2.95.3.tar.gz
+=> Checksum SHA1 OK for gcc-2.95.3-diff-2002-08-29.gz
+=> Checksum RMD160 OK for gcc-2.95.3-diff-2002-08-29.gz
+===> Installing dependencies for gcc-2.95.3nb7
+===> Overriding tools for gcc-2.95.3nb7
+===> Extracting for gcc-2.95.3nb7
+/bin/mkdir -p /usr/pkgsrc/lang/gcc/work/gcc-2.95.3
+/bin/cp /usr/pkgsrc/lang/gcc/files/xm-netbsd.h /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config
+/bin/cp /usr/pkgsrc/lang/gcc/files/xm-target64.h /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config
+for file in /usr/pkgsrc/lang/gcc/files/*_* ; do  arch=`/bin/basename ${file} | /bin/sed -e "s/_.*//"`;	 dest=`/bin/basename ${file} | /bin/sed -e "s/${arch}_//"`;  /bin/mkdir -p /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config/${arch};			 /bin/cp ${file} /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config/${arch}/${dest};	 done
+/bin/rm /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config/alpha/netbsd-elf.h
+/bin/rm /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config/arm/t-netbsd
+/bin/rm /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/config/mips/x-netbsd
+/bin/rm /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/libf2c/libF77/dtime_.c
+/bin/rm /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/libf2c/libF77/etime_.c
+===> Patching for gcc-2.95.3nb7
+=> Applying distribution patches for gcc-2.95.3nb7
+=> Applying pkgsrc patches for gcc-2.95.3nb7
+===> Creating toolchain wrappers for gcc-2.95.3nb7
+===> Configuring for gcc-2.95.3nb7
+
+[ configure output for gcc elided ]
+
+===> Building for gcc-2.95.3nb7
+
+[ successful steps up to here elided ]
+
+gcc -c  -DIN_GCC   -Wno-error     -I. -I.. -I/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch -I/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/.. -I/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/../config -I/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/../../include /usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/decl.c
+/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/decl.c: In function 'start_struct':
+/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/decl.c:4451: error: argument 'code' doesn't match prototype
+/usr/pkgsrc/lang/gcc/work/gcc-2.95.3/gcc/ch/ch-tree.h:736: error: prototype declaration
+make[2]: *** [decl.o] Error 1
+make[2]: Leaving directory `/usr/pkgsrc/lang/gcc/work/objdir/gcc/ch'
+make[1]: *** [cc1chill] Error 2
+make[1]: Leaving directory `/usr/pkgsrc/lang/gcc/work/objdir/gcc'
+make: *** [all-gcc] Error 2
+*** Error code 2
+
+Stop.
+bmake: stopped in /usr/pkgsrc/lang/gcc
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/lang/gcc
+Different compilers implement different language standards. Newer compilers, while frequently trying to retain backwards compatibility, need to at times enforce certain new standards that will break older packages or older code. If we really wanted to build gcc-2.95 on this host, we would first have to install a compiler capable of building gcc-2.95. The backwards compatibility was, apparently, broken at some point after gcc version 3. So we'll proceed to build that compiler...
+
+pkgsrc - building gcc34
+
+Unlike gcc-2.95, our 4.x based compiler does not seem to have any issues building gcc-3.4.x. Note that in this case we are actually building a number of packages -- one for each language the compiler chain supports. The "gcc34" package itself does not actually install any files: it only depends on the other packages and thusly causes them to be built. This is what is known as a "meta-package". 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 gcc]# cd ../gcc34
+[root@domU-12-31-39-09-C5-24 gcc3]# bmake
+
+[ successful build of gcc3 elided ]
+
+[root@domU-12-31-39-09-C5-24 gcc3]# bmake install clean-depends clean
+=> Bootstrap dependency digest>=20010302: found digest-20080510
+===> Skipping vulnerability checks.
+WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+===> Installing for gcc3-3.3.6
+=> Automatic manual page handling
+=> Registering installation for gcc3-3.3.6
+gcc3-3.3.6 requires installed package gcc3-c++-3.3.6
+gcc3-3.3.6 requires installed package gcc3-c-3.3.6nb1
+gcc3-3.3.6 requires installed package gcc3-f77-3.3.6
+gcc3-3.3.6 requires installed package gcc3-java-3.3.6
+gcc3-3.3.6 requires installed package gcc3-objc-3.3.6
+===> Cleaning for tnftp-20070806
+===> Cleaning for digest-20080510
+===> Cleaning for gcc3-c-3.3.6nb1
+===> Cleaning for gcc3-c++-3.3.6
+===> Cleaning for gcc3-f77-3.3.6
+===> Cleaning for f2c-20090411nb4
+===> Cleaning for libtool-base-2.2.6bnb3
+===> Cleaning for zlib-1.2.3
+===> Cleaning for gcc3-java-3.3.6
+===> Cleaning for gcc3-objc-3.3.6
+===> Cleaning for gcc3-3.3.6
+[root@domU-12-31-39-09-C5-24 gcc3]#
+pkgsrc - building perl
+
+Phew, now lets move on and try to build perl... 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 gcc3]# cd ../../lang/perl5
+[root@domU-12-31-39-09-C5-24 perl5]# bmake
+
+[ successful build of perl elided ]
+
+[root@domU-12-31-39-09-C5-24 perl5]# bmake install clean-depends clean
+
+[ successful installation of perl elided ]
+
+[root@domU-12-31-39-09-C5-24 perl5]#
+Note here that we can give several "targets" in a single "make" invocation. In this case, we tell pkgsrc to not only install the package, but also to "clean" any of the dependencies that were built as well as to "clean" (ie remove any temporary object files) of the "perl5" package.
+
+pkgsrc - building python
+
+Well, since building perl was so easy, surely building python will be trivial as well! Let's give it a go... 
+[show code segment] [toggle all code segments]
+[root@domU-12-31-39-09-C5-24 perl5]# cd ../python26
+[root@domU-12-31-39-09-C5-24 python26]# bmake
+
+[ successful build of dependencies elided ]
+
+=> Returning to build of db4-4.7.25.3
+===> Overriding tools for db4-4.7.25.3
+===> Extracting for db4-4.7.25.3
+===> Patching for db4-4.7.25.3
+=> Applying pkgsrc patches for db4-4.7.25.3
+===> Creating toolchain wrappers for db4-4.7.25.3
+===> Configuring for db4-4.7.25.3
+=> Modifying GNU configure scripts to avoid --recheck
+=> Replacing config-guess with pkgsrc versions
+=> Replacing config-sub with pkgsrc versions
+=> Replacing install-sh with pkgsrc version
+checking build system type... i386-pc-linux-gnu
+checking host system type... i386-pc-linux-gnu
+checking if building in the top-level or dist directories... no
+checking if --disable-cryptography option specified... no
+checking if --disable-hash option specified... no
+checking if --disable-mutexsupport option specified... no
+checking if --disable-queue option specified... no
+checking if --disable-replication option specified... no
+checking if --disable-statistics option specified... no
+checking if --disable-verify option specified... no
+checking if --enable-compat185 option specified... yes
+checking if --enable-cxx option specified... yes
+checking if --enable-debug option specified... no
+checking if --enable-debug_rop option specified... no
+checking if --enable-debug_wop option specified... no
+checking if --enable-diagnostic option specified... no
+checking if --enable-dump185 option specified... no
+checking if --enable-java option specified... no
+checking if --enable-mingw option specified... no
+checking if --enable-o_direct option specified... no
+checking if --enable-posixmutexes option specified... no
+checking if --enable-pthread_api option specified... no
+checking if --enable-rpc option specified... yes
+checking if --enable-smallbuild option specified... no
+checking if --enable-tcl option specified... no
+checking if --enable-test option specified... no
+checking if --enable-uimutexes option specified... no
+checking if --enable-umrw option specified... no
+checking if --with-mutex=MUTEX option specified... no
+checking if --with-tcl=DIR option specified... no
+checking if --with-uniquename=NAME option specified... no
+checking for i386-pc-linux-chmod... /bin/chmod
+checking for i386-pc-linux-cp... /bin/cp
+checking for i386-pc-linux-ln... /bin/ln
+checking for i386-pc-linux-mkdir... /bin/mkdir -p
+checking for i386-pc-linux-rm... /bin/rm
+checking for i386-pc-linux-rpcgen... no
+checking for rpcgen... rpcgen
+checking for i386-pc-linux-sh... no
+checking for sh... /usr/pkgsrc/databases/db4/work/.tools/bin/sh
+checking for a BSD-compatible install... /usr/bin/install -c -o root -g root
+checking for i386-pc-linux-cc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking whether we are using the GNU C++ compiler... no
+checking whether g++ accepts -g... no
+checking how to run the C++ preprocessor... /lib/cpp
+configure: error: C++ preprocessor "/lib/cpp" fails sanity check
+See `config.log' for more details.
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/databases/db4
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/databases/db4
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/lang/python26
+[root@domU-12-31-39-09-C5-24 python26]# 
+Hmmm, so that didn't work out so well. Now let's consider that we did install a different compiler earlier, maybe the system compiler is making things difficult again for us? Let's try to tell pkgsrc to use the gcc-3.x compiler in favor of the system's gcc-4.x compiler: 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 python26]# export PATH=/usr/pkg/gcc3/bin:$PATH
+[root@domU-12-31-39-09-C5-24 python26]# bmake clean
+===> Cleaning for python26-2.6.4nb4
+[root@domU-12-31-39-09-C5-24 python26]# bmake
+
+[ successful output elided ]
+
+libtool: link: ranlib .libs/libdb4-4.7.a
+libtool: link: ( cd ".libs" && rm -f "libdb4-4.7.la" && ln -s "../libdb4-4.7.la" "libdb4-4.7.la" )
+/bin/rm -f libdb4.a
+/bin/ln -s .libs/libdb4-4.7.a libdb4.a
+/usr/pkgsrc/databases/db4/work/.tools/bin/sh ./libtool --mode=compile g++ -c -I. -I../dist/.. -I/usr/pkg/include -D_GNU_SOURCE -D_REENTRANT -Wno-error -I/usr/pkg/include ../dist/../cxx/cxx_db.cpp
+libtool: compile: unable to infer tagged configuration
+libtool: compile: specify a tag with `--tag'
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/databases/db4/work/db-4.7.25/build_unix
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/databases/db4
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/databases/db4
+*** Error code 1
+
+Stop.
+bmake: stopped in /usr/pkgsrc/lang/python26
+[root@domU-12-31-39-09-C5-24 python26]#
+Hmmm, so we did get a bit further. Our build failed in a different place, but obviously we still weren't successful. Now what?
+
+In the process of installing the various tools used to build software from source, the "libtool" utility is used to invoke the compiler or linker with the appropriate flags. It installs a number of shell script wrappers around the compiler. But when we first started building packages, the "libtool" package was created using the system's compiler. Hence, it will continue to try to use that compiler in favor of what we instructed the system to use. Oy!
+
+So... let's try to delete this magic package. If it's needed, it will be pulled in as a dependency and be rebuilt, this time using the correct compiler. 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 python26]# pkg_delete libtool
+pkg_delete: No matching package for basename `libtool' of `libtool'
+[root@domU-12-31-39-09-C5-24 python26]# pkg_info | grep ool
+pkg_install-20100204 Package management and administration tools for pkgsrc
+libtool-base-2.2.6bnb3 Generic shared library support script (the script itself)
+[root@domU-12-31-39-09-C5-24 python26]# pkg_delete libtool-base
+Now let's remember to clean up any partially built dependencies to ensure that the next time we attempt to build this package, we get the correct compiler and the correct libtool. Then, let's try again: 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 python26]# bmake clean-depends clean
+===> Cleaning for tnftp-20070806
+===> Cleaning for digest-20080510
+===> Cleaning for gcc3-c-3.3.6nb1
+===> Cleaning for gcc3-c++-3.3.6
+===> Cleaning for gcc3-f77-3.3.6
+===> Cleaning for libtool-base-2.2.6bnb3
+===> Cleaning for bzip2-1.0.5nb1
+===> Cleaning for pax-20080110
+===> Cleaning for db4-4.7.25.3
+===> Cleaning for pkg-config-0.23nb1
+===> Cleaning for libffi-3.0.9
+===> Cleaning for readline-6.1
+===> Cleaning for zlib-1.2.3
+===> Cleaning for perl-5.10.1
+===> Cleaning for openssl-0.9.8lnb1
+===> Cleaning for python26-2.6.4nb4
+[root@domU-12-31-39-09-C5-24 python26]# bmake
+
+[ sorting out of dependencies elided ]
+
+===> Installing dependencies for db4-4.7.25.3
+=> Build dependency libtool-base>=2.2.6bnb3: NOT found
+=> Verifying reinstall for ../../devel/libtool-base
+
+[ successful rebuild of libtool-base elided ]
+
+=> Registering installation for libtool-base-2.2.6bnb3
+libtool-base-2.2.6bnb3 requires installed package gcc3-c++-3.3.6
+libtool-base-2.2.6bnb3 requires installed package gcc3-c-3.3.6nb1
+libtool-base-2.2.6bnb3 requires installed package gcc3-f77-3.3.6
+=> Returning to build of db4-4.7.25.3
+
+[ successful build of db4 elided ]
+
+=> Registering installation for db4-4.7.25.3
+db4-4.7.25.3 requires installed package gcc3-c++-3.3.6
+db4-4.7.25.3 requires installed package gcc3-c-3.3.6nb1
+=> Returning to build of python26-2.6.4nb4
+
+[ successful build of python26 and all dependencies elided ]
+
+=> Unwrapping files-to-be-installed.
+[root@domU-12-31-39-09-C5-24 python26]# bmake install clean-depends clean
+
+[ successful installation of python26 elided ]
+
+[root@domU-12-31-39-09-C5-24 python26]#
+Hooray! Note that pkgsrc did rebuild "libtool", then rebuilt (successfully) "db4", and finally built and installed python. But was all this really necessary?
+
+No, it was not. :-) Another way to get this to work would have been by adding the appropriate "gcc-c++" package using yum. Remember how we noticed that the gcc3 package installed numerous packages? In our very first step, when we first invoked yum to install the "gcc" package, that did not actually install the full compiler suite -- it only installed the C compiler (and libraries). The initial error generated by the "db4" package was:
+
+configure: error: C++ preprocessor "/lib/cpp" fails sanity check
+Notice that it says C++ preprocessor and not "C preprocessor". This was a sign that our C++ development environment was not complete. If we had additionally used yum to install the "gcc-c++" package at the very beginning (ie before bootstrapping pkgsrc), we would have never run into this error, as the provided C++ compiler chain would have caused the build of "db4" to simply succeed.
+pkgsrc - installing the remaining packages
+
+Almost all of the remaining packages worked out without a problem. Notice that in the code segment below we use a simple shell trick to allow us to find the correct location of the package we wish to install without having to know the sub directory: since every package in pkgsrc is named uniquely, we can just let the shell wildcard character "*" fill in the correct sub directory. 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 python26]# cd ../../*/gnupg
+[root@domU-12-31-39-09-C5-24 gnupg]# bmake install clean-depends clean
+
+[ successful build and install of gnupg elided ]
+
+[root@domU-12-31-39-09-C5-24 gnupg]# cd ../../*/screen
+[root@domU-12-31-39-09-C5-24 screen]# bmake install clean-depends clean
+
+[ successful build and install of screen elided ]
+
+[root@domU-12-31-39-09-C5-24 screen]# cd ../../*/sudo
+[root@domU-12-31-39-09-C5-24 sudo]# bmake install clean-depends clean
+
+[ successful build and install of sudo elided ]
+
+[root@domU-12-31-39-09-C5-24 sudo]# cd ../../*/sipcalc
+[root@domU-12-31-39-09-C5-24 sipcalc]# bmake install clean-depends clean
+
+[ successful build and install of sipcalc elided ]
+
+[root@domU-12-31-39-09-C5-24 sipcalc]#
+But hey, wait a second... didn't some of you run into issues building sipcalc? Some of you had to specify additional "package options" on the command-line to cause it to build. Why does it work out for me?
+
+Well, after trying to build the packages myself, I noticed the problem you ran into. Considering that this is not particularly userfriendly and should just work out of the box, I reported the error to the pkgsrc maintainers, who fixed it. When I fetched the pkgsrc tarball, I got a version where this error was already no longer present.
+
+This nicely illustrates that it's useful and desirable to report any problems one runs into to the software maintainers. These bug reports are what make any open source software better.
+
+pkgsrc - building binary packages
+
+In order to build binary packages of the software you installed using pkgsrc, you basically have two options. One way to do this is to use the 'bmake package' command in the directory from which you installed the package. The problem with that is, though, that this will only create a binary package of the software in question, not of all the required dependencies. If you then took this one package to install it on another host, you'd be missing the dependencies and would thus not be able to install it.
+
+A way around this would be ensure that all dependencies also build binary packages would be to set the DEPENDS_TARGET in /etc/mk.conf to 'package' to ensure that all dependencies also build packages. However, you still have the disadvantage of having to actually build and install the whole package again if you want to 'make package' (if you did run 'make clean' after the installation, anyway).
+
+The second approach is to create a binary package from the installed manifest. To do that, you would use the pkg_tarup tool:
+[show code segment] [toggle all code segments]
+
+[root@ip-10-196-78-80 pkg_tarup]# bmake install clean-depends clean
+===> Skipping vulnerability checks.
+WARNING: No /var/db/pkg/pkg-vulnerabilities file found.
+WARNING: To fix run: `/usr/pkg/sbin/pkg_admin -K /var/db/pkg fetch-pkg-vulnerabilities'.
+===> Installing dependencies for pkg_tarup-1.8
+===> Overriding tools for pkg_tarup-1.8
+===> Extracting for pkg_tarup-1.8
+cd /usr/pkgsrc/pkgtools/pkg_tarup/files && cp pkg_tarup pkg_tarup.1 pkg_tarup_all /usr/pkgsrc/pkgtools/pkg_tarup/work/
+===> Patching for pkg_tarup-1.8
+===> Creating toolchain wrappers for pkg_tarup-1.8
+===> Configuring for pkg_tarup-1.8
+=> Substituting "tarup" in pkg_tarup pkg_tarup_all pkg_tarup.1
+===> Installing for pkg_tarup-1.8
+=> Creating installation directories from PLIST files
+/usr/bin/install -c -o root -g root -m 555 /usr/pkgsrc/pkgtools/pkg_tarup/work/pkg_tarup /usr/pkg/bin
+/usr/bin/install -c -o root -g root -m 555 /usr/pkgsrc/pkgtools/pkg_tarup/work/pkg_tarup_all /usr/pkg/bin
+/usr/bin/install -c -o root -g root -m 444 /usr/pkgsrc/pkgtools/pkg_tarup/work/pkg_tarup.1 /usr/pkg/man/man1
+=> Automatic manual page handling
+=> Registering installation for pkg_tarup-1.8
+===> Cleaning for pkg_tarup-1.8
+[root@ip-10-196-78-80 pkg_tarup]# pkg_tarup -a python26
+Creating binary package: python26-2.6.6nb5
+Creating package /tmp/python26-2.6.6nb5
+Creating binary package: db4-4.8.30
+Creating package /tmp/db4-4.8.30
+Creating binary package: bzip2-1.0.6
+Creating package /tmp/bzip2-1.0.6
+Creating binary package: libffi-3.0.9
+Creating package /tmp/libffi-3.0.9
+Creating binary package: zlib-1.2.3
+Creating package /tmp/zlib-1.2.3
+Creating binary package: openssl-0.9.8q
+Creating package /tmp/openssl-0.9.8q
+[root@ip-10-196-78-80 pkg_tarup]#
+After building the binary packages, you can scp(1) them to another host and add them via pkg_add(1).
+
+Installing apache by hand
+
+In this code segment you see the installation of apache "by hand". That is, we first fetch the code from the website (or the recommended mirror), extract it, run configure with the appropriate flags, then run make followed by make install. Since all pre-requisites or dependencies are already available on our system, we do not need to manually fetch and build anything else. 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 sipcalc]# cd /tmp
+[root@domU-12-31-39-09-C5-24 tmp]# wget http://mirror.atlanticmetro.net/apache/httpd/httpd-2.2.14.tar.gz
+
+
+--2010-02-21 21:32:42--  http://mirror.atlanticmetro.net/apache/httpd/httpd-2.2.14.tar.gz
+Resolving mirror.atlanticmetro.net... 69.9.32.245, 2001:1980:2:9838:b::1
+Connecting to mirror.atlanticmetro.net|69.9.32.245|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 6684081 (6.4M) [application/x-gzip]
+Saving to: `httpd-2.2.14.tar.gz'
+
+ 0% [                                                                      ] 0           --.-K/s               9% [=====>                                                                ] 649,360     2.59M/s              30% [====================>                                                 ] 2,041,256   3.66M/s              75% [===================================================>                  ] 5,048,368   6.39M/s              100%[=====================================================================>] 6,684,081   7.20M/s   in 0.9s    
+
+2010-02-21 21:32:43 (7.20 MB/s) - `httpd-2.2.14.tar.gz' saved [6684081/6684081]
+
+[root@domU-12-31-39-09-C5-24 tmp]# tar zxf httpd-2.2.14.tar.gz 
+[root@domU-12-31-39-09-C5-24 tmp]# cd httpd-2.2.14
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# ./configure --prefix=/usr/by-hand
+
+[ successful configure of httpd elided ]
+
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# make
+
+[ successful build of httpd elided ]
+
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# make install
+
+[ successful install of httpd elided ]
+
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]#
+Package dependencies
+
+It is sometimes nice to visualize the dependencies of all installed packages. The following code segment shows you how you could do this using tools provided by pkgsrc. 
+[show code segment] [toggle all code segments]
+
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# pkg_info | wc -l
+27
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# pkg_info
+tnftp-20070806      The enhanced FTP client in NetBSD
+libffi-3.0.9        Foreign function interface
+pkg_install-20100204 Package management and administration tools for pkgsrc
+sipcalc-1.1.4       IPv4/IPv6 subnet calculator
+screen-4.0.3nb3     Multi-screen window manager
+digest-20080510     Message digest wrapper utility
+gcc3-c++-3.3.6      GNU Compiler Collection, v3 - C++ compiler
+gcc3-java-3.3.6     GNU Compiler Collection, v3 - Java compiler
+gcc3-c-3.3.6nb1     GNU Compiler Collection, v3 - C compiler
+perl-5.10.1         Practical Extraction and Report Language
+pkg-config-0.23nb1  System for managing library compile/link flags
+bmake-20090909      Portable (autoconf) version of NetBSD 'make' utility
+gnupg-1.4.10        GNU Privacy Guard, public-Key encryption and digital signatures
+sudo-1.7.2p2        Allow others to run commands as root
+zlib-1.2.3          General purpose data compression library
+readline-6.1        GNU library that can recall and edit previous input
+gcc3-f77-3.3.6      GNU Compiler Collection, v3 - F77 compiler
+bzip2-1.0.5nb1      Block-sorting file compressor
+db4-4.7.25.3        Berkeley DB version 4 from Oracle
+bootstrap-mk-files-20090807nb1 *.mk files for the bootstrap bmake utility
+libtool-base-2.2.6bnb3 Generic shared library support script (the script itself)
+gcc3-3.3.6          GNU Compiler Collection, v3
+python26-2.6.4nb4   Interpreted, interactive, object-oriented programming language
+pax-20080110        POSIX standard archiver with many extensions
+openssl-0.9.8lnb1   Secure Socket Layer and cryptographic library
+gcc3-objc-3.3.6     GNU Compiler Collection, v3 - Objective C compiler
+f2c-20090411nb4     Fortran to C compiler including a script to emulate f77
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# pkg_admin fetch-pkg-vulnerabilities
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# pkg_admin audit
+[root@domU-12-31-39-09-C5-24 httpd-2.2.14]# cd /usr/pkgsrc/*/pkgdepgraph
+[root@domU-12-31-39-09-C5-24 pkgdepgraph]# bmake install clean-depends clean
+
+[ successful install of pkgdepgraph elided ]
+
+[root@domU-12-31-39-09-C5-24 pkgdepgraph]# pkgdepgraph > /tmp/all.fedora.dot
+[root@domU-12-31-39-09-C5-24 pkgdepgraph]# logout
+[H[JConnection to ec2-204-236-249-27.compute-1.amazonaws.com closed.
+(gort) scp ec2-204-236-249-27.compute-1.amazonaws.com:/tmp/all.fedora.dot .
+Warning: Permanently added 'ec2-204-236-249-27.compute-1.amazonaws.com,204.236.249.27' (RSA) to the list of known hosts.
+all.fedora.dot                                                                 0%    0     0.0KB/s   --:-- ETAall.fedora.dot                                                               100% 4775     4.7KB/s   00:00    
+(gort) ec2-terminate-instances i-dd18eeb6
+INSTANCE	i-dd18eeb6	running	shutting-down
+(gort) dot -Tpng all.fedora.dot > all.fedora.png
+(gort) exit
+
+Script done on Sun Feb 21 21:53:12 2010
+The pkgdepgraph package creates a "dot-language" description of the dependency graph. This graph can be visualized using the tools from the graphviz package. The resulting graph is available here. The dot-language graph description itself is available here.
+
+I also did the same steps above on a new instance where I did not use the gcc3 package and instead used yum to install the gcc-c++ package. The resulting dependency graph is slightly less complex, and available here. The dot-language graph description itself is available here.
+
+[Course Website]
